@@ -3,7 +3,7 @@
  * Handles caching and offline functionality
  */
 
-const CACHE_NAME = 'arte-en-mis-manos-v1.0.0';
+const CACHE_NAME = 'arte-en-mis-manos-v1.0.1';
 const RUNTIME_CACHE = 'arte-runtime-v1.0.0';
 
 // Files to cache immediately
