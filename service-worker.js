@@ -3,7 +3,7 @@
  * Versión robusta que no falla si algún archivo no existe
  */
 
-const CACHE_NAME = 'arte-en-mis-manos-v1.0.2';
+const CACHE_NAME = 'arte-en-mis-manos-v1.0.3';
 const RUNTIME_CACHE = 'arte-runtime-v1.0.2';
 
 // Archivos esenciales a cachear
