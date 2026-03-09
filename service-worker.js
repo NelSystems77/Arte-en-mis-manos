@@ -1,14 +1,13 @@
 /**
- * Service Worker
- * Handles caching and offline functionality
+ * Service Worker - Arte en mis manos
+ * Versión robusta que no falla si algún archivo no existe
  */
 
-const CACHE_NAME = 'arte-en-mis-manos-v1.0.1';
-const RUNTIME_CACHE = 'arte-runtime-v1.0.0';
+const CACHE_NAME = 'arte-en-mis-manos-v1.0.2';
+const RUNTIME_CACHE = 'arte-runtime-v1.0.2';
 
-// Files to cache immediately
+// Archivos esenciales a cachear
 const PRECACHE_URLS = [
-    '/',
     '/Arte-en-mis-manos/',
     '/Arte-en-mis-manos/index.html',
     '/Arte-en-mis-manos/manifest.json',
@@ -19,226 +18,112 @@ const PRECACHE_URLS = [
     '/Arte-en-mis-manos/assets/js/ui.js',
     '/Arte-en-mis-manos/assets/js/booking.js',
     '/Arte-en-mis-manos/assets/js/api.js',
-    '/Arte-en-mis-manos/assets/js/auth.js',
-    '/admin/dashboard.html',
-    '/admin/services.html',
-    '/admin/appointments.html',
-    'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap'
+    '/Arte-en-mis-manos/assets/js/auth.js'
 ];
 
-// Install event - cache essential files
+// Install event - cachear archivos INDIVIDUALMENTE (sin fallar)
 self.addEventListener('install', (event) => {
-    console.log('[ServiceWorker] Installing...');
+    console.log('[ServiceWorker] 🔧 Installing...');
     
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('[ServiceWorker] Precaching app shell');
-                return cache.addAll(PRECACHE_URLS);
+                console.log('[ServiceWorker] 📦 Caching app shell');
+                
+                // Cachear cada archivo individualmente, ignorando errores
+                const cachePromises = PRECACHE_URLS.map(url => {
+                    return cache.add(url)
+                        .then(() => {
+                            console.log('[ServiceWorker] ✅ Cached:', url);
+                        })
+                        .catch(err => {
+                            console.warn('[ServiceWorker] ⚠️ Failed to cache:', url, err);
+                        });
+                });
+                
+                return Promise.all(cachePromises);
             })
             .then(() => {
-                console.log('[ServiceWorker] Skip waiting');
+                console.log('[ServiceWorker] ✅ Installation complete');
                 return self.skipWaiting();
+            })
+            .catch(error => {
+                console.error('[ServiceWorker] ❌ Install failed:', error);
             })
     );
 });
 
-// Activate event - clean up old caches
+// Activate event - limpiar cachés antiguas
 self.addEventListener('activate', (event) => {
-    console.log('[ServiceWorker] Activating...');
+    console.log('[ServiceWorker] 🚀 Activating...');
     
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-                        console.log('[ServiceWorker] Deleting old cache:', cacheName);
+                        console.log('[ServiceWorker] 🗑️ Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
         }).then(() => {
-            console.log('[ServiceWorker] Claiming clients');
+            console.log('[ServiceWorker] ✅ Activation complete');
             return self.clients.claim();
         })
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - estrategia de cache
 self.addEventListener('fetch', (event) => {
-    // Skip cross-origin requests
-    if (!event.request.url.startsWith(self.location.origin)) {
-        // Cache Google Fonts
-        if (event.request.url.includes('fonts.googleapis.com') || 
-            event.request.url.includes('fonts.gstatic.com')) {
-            event.respondWith(
-                caches.match(event.request).then(response => {
-                    return response || fetch(event.request).then(fetchResponse => {
-                        return caches.open(RUNTIME_CACHE).then(cache => {
-                            cache.put(event.request, fetchResponse.clone());
+    // Ignorar solicitudes no-HTTP
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
+
+    // Ignorar solicitudes POST/PUT/DELETE
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
+    event.respondWith(
+        caches.match(event.request)
+            .then(response => {
+                // Si está en caché, devolverlo
+                if (response) {
+                    return response;
+                }
+
+                // Si no, pedirlo a la red
+                return fetch(event.request)
+                    .then(fetchResponse => {
+                        // No cachear si no es una respuesta válida
+                        if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type !== 'basic') {
                             return fetchResponse;
+                        }
+
+                        // Cachear la respuesta en runtime
+                        const responseToCache = fetchResponse.clone();
+                        caches.open(RUNTIME_CACHE)
+                            .then(cache => {
+                                cache.put(event.request, responseToCache);
+                            });
+
+                        return fetchResponse;
+                    })
+                    .catch(error => {
+                        console.log('[ServiceWorker] ⚠️ Fetch failed:', event.request.url);
+                        // Aquí podrías devolver una página offline
+                        return new Response('Offline', {
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: new Headers({
+                                'Content-Type': 'text/plain'
+                            })
                         });
                     });
-                })
-            );
-        }
-        return;
-    }
-
-    // Network first strategy for API calls
-    if (event.request.url.includes('/api/')) {
-        event.respondWith(networkFirst(event.request));
-        return;
-    }
-
-    // Cache first strategy for assets
-    if (event.request.url.includes('/assets/')) {
-        event.respondWith(cacheFirst(event.request));
-        return;
-    }
-
-    // Stale while revalidate for HTML pages
-    event.respondWith(staleWhileRevalidate(event.request));
-});
-
-/**
- * Cache First Strategy
- * Good for: Static assets (CSS, JS, images)
- */
-function cacheFirst(request) {
-    return caches.match(request).then(response => {
-        if (response) {
-            return response;
-        }
-        
-        return fetch(request).then(fetchResponse => {
-            return caches.open(RUNTIME_CACHE).then(cache => {
-                cache.put(request, fetchResponse.clone());
-                return fetchResponse;
-            });
-        }).catch(() => {
-            // Return offline page if available
-            return caches.match('/offline.html');
-        });
-    });
-}
-
-/**
- * Network First Strategy
- * Good for: API calls, dynamic content
- */
-function networkFirst(request) {
-    return fetch(request).then(fetchResponse => {
-        return caches.open(RUNTIME_CACHE).then(cache => {
-            cache.put(request, fetchResponse.clone());
-            return fetchResponse;
-        });
-    }).catch(() => {
-        return caches.match(request);
-    });
-}
-
-/**
- * Stale While Revalidate Strategy
- * Good for: HTML pages, frequently updated content
- */
-function staleWhileRevalidate(request) {
-    return caches.open(RUNTIME_CACHE).then(cache => {
-        return cache.match(request).then(response => {
-            const fetchPromise = fetch(request).then(fetchResponse => {
-                cache.put(request, fetchResponse.clone());
-                return fetchResponse;
-            });
-            
-            return response || fetchPromise;
-        });
-    });
-}
-
-// Background Sync
-self.addEventListener('sync', (event) => {
-    console.log('[ServiceWorker] Background sync:', event.tag);
-    
-    if (event.tag === 'sync-appointments') {
-        event.waitUntil(syncAppointments());
-    }
-});
-
-/**
- * Sync Appointments with Backend
- */
-async function syncAppointments() {
-    try {
-        // Get pending appointments from IndexedDB
-        // Send to backend
-        console.log('[ServiceWorker] Syncing appointments...');
-        return Promise.resolve();
-    } catch (error) {
-        console.error('[ServiceWorker] Sync failed:', error);
-        return Promise.reject(error);
-    }
-}
-
-// Push Notifications
-self.addEventListener('push', (event) => {
-    console.log('[ServiceWorker] Push received:', event);
-    
-    const options = {
-        body: event.data ? event.data.text() : 'Nueva notificación',
-        icon: '/assets/icons/icon-192x192.png',
-        badge: '/assets/icons/icon-96x96.png',
-        vibrate: [200, 100, 200],
-        data: {
-            dateOfArrival: Date.now(),
-            primaryKey: 1
-        },
-        actions: [
-            {
-                action: 'explore',
-                title: 'Ver',
-                icon: '/assets/icons/icon-96x96.png'
-            },
-            {
-                action: 'close',
-                title: 'Cerrar',
-                icon: '/assets/icons/icon-96x96.png'
-            }
-        ]
-    };
-    
-    event.waitUntil(
-        self.registration.showNotification('Arte en mis manos', options)
+            })
     );
 });
 
-// Notification Click
-self.addEventListener('notificationclick', (event) => {
-    console.log('[ServiceWorker] Notification click:', event.action);
-    
-    event.notification.close();
-    
-    if (event.action === 'explore') {
-        event.waitUntil(
-            clients.openWindow('/')
-        );
-    }
-});
-
-// Message from client
-self.addEventListener('message', (event) => {
-    console.log('[ServiceWorker] Message received:', event.data);
-    
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
-    
-    if (event.data && event.data.type === 'CACHE_URLS') {
-        event.waitUntil(
-            caches.open(RUNTIME_CACHE).then(cache => {
-                return cache.addAll(event.data.urls);
-            })
-        );
-    }
-});
-
-console.log('[ServiceWorker] Loaded and ready!');
+console.log('[ServiceWorker] 📱 Loaded and ready!');
