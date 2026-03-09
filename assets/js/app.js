@@ -161,14 +161,38 @@ function loadGallery() {
     if (savedGallery) {
         app.gallery = JSON.parse(savedGallery);
     } else {
-        // Default gallery items with placeholder images
+        // Default gallery items - URLs verificadas
         app.gallery = [
-            { id: 1, title: 'Diseño Floral', image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500' },
-            { id: 2, title: 'Francés Clásico', image: 'https://images.unsplash.com/photo-1610992015762-45dca7c44c10?w=500' },
-            { id: 3, title: 'Nail Art Abstracto', image: 'https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=500' },
-            { id: 4, title: 'Uñas en Gel', image: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=500' },
-            { id: 5, title: 'Diseño Minimalista', image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=500' },
-            { id: 6, title: 'Uñas Acrílicas', image: 'https://images.unsplash.com/photo-1599948128020-9a4d7b4f8c2f?w=500' }
+            { 
+                id: 1, 
+                title: 'Diseño Floral', 
+                image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&auto=format&fit=crop&q=80'
+            },
+            { 
+                id: 2, 
+                title: 'Francés Clásico', 
+                image: 'https://images.unsplash.com/photo-1604902396830-aca29e19b067?w=600&auto=format&fit=crop&q=80'
+            },
+            { 
+                id: 3, 
+                title: 'Nail Art Abstracto', 
+                image: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=600&auto=format&fit=crop&q=80'
+            },
+            { 
+                id: 4, 
+                title: 'Uñas en Gel', 
+                image: 'https://images.unsplash.com/photo-1610992015762-45dca7c44c10?w=600&auto=format&fit=crop&q=80'
+            },
+            { 
+                id: 5, 
+                title: 'Diseño Minimalista', 
+                image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=600&auto=format&fit=crop&q=80'
+            },
+            { 
+                id: 6, 
+                title: 'Uñas Acrílicas', 
+                image: 'https://images.unsplash.com/photo-1599948128020-9a4d7b4f8c2f?w=600&auto=format&fit=crop&q=80'
+            }
         ];
         localStorage.setItem('gallery', JSON.stringify(app.gallery));
     }
