@@ -171,7 +171,7 @@ function loadGallery() {
             { 
                 id: 2, 
                 title: 'Francés Clásico', 
-                image: 'https://images.unsplash.com/photo-1604902396830-aca29e19b067?w=600&auto=format&fit=crop&q=80'
+                image: '/Arte-en-mis-manos/assets/images/gallery/frances.jpg'
             },
             { 
                 id: 3, 
@@ -191,7 +191,7 @@ function loadGallery() {
             { 
                 id: 6, 
                 title: 'Uñas Acrílicas', 
-                image: 'https://images.unsplash.com/photo-1599948128020-9a4d7b4f8c2f?w=600&auto=format&fit=crop&q=80'
+                image: '/Arte-en-mis-manos/assets/images/gallery/uñas acrilicas.png'
             }
         ];
         localStorage.setItem('gallery', JSON.stringify(app.gallery));
