@@ -15,13 +15,13 @@
         width: 80%;
         max-width: 300px;
         height: calc(100vh - 70px);
-        background: var(--color-dark);
+        background: linear-gradient(135deg, rgba(255, 184, 209, 0.95) 0%, rgba(232, 213, 255, 0.95) 100%);
         backdrop-filter: blur(20px);
         flex-direction: column;
         align-items: flex-start;
         padding: 2rem;
         gap: 1.5rem;
-        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+        box-shadow: -4px 0 20px rgba(255, 107, 157, 0.3);
         transition: right 0.3s ease;
         z-index: 999;
     }
@@ -34,21 +34,24 @@
         font-size: 1.1rem;
         width: 100%;
         padding: 0.5rem 0;
-        color: rgba(255, 255, 255, 0.9) !important;
+        color: #2D2D2D !important;
+        font-weight: 600;
     }
 
-    /* NUEVO: Efecto hover en links del menú móvil */
+    /* Efecto hover en links del menú móvil */
     .nav-link:hover {
-        color: var(--color-primary) !important;
-        background: rgba(255, 255, 255, 0.1);
+        color: #FF1744 !important;
+        background: rgba(255, 255, 255, 0.4);
         padding-left: 0.5rem;
         border-radius: 8px;
+        transform: translateX(5px);
     }
 
-    /* NUEVO: Estilo para el botón de reservar dentro del menú móvil */
+    /* Estilo para el botón de reservar dentro del menú móvil */
     .nav-menu .btn-primary {
         width: 100%;
         margin-top: 1rem;
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
     }
 
     .menu-toggle.active span:nth-child(1) {
