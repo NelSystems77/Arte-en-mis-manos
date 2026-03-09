@@ -181,7 +181,7 @@ function loadGallery() {
             { 
                 id: 4, 
                 title: 'Uñas en Gel', 
-                image: 'https://images.unsplash.com/photo-1610992015762-45dca7c44c10?w=600&auto=format&fit=crop&q=80'
+                image: '/Arte-en-mis-manos/assets/images/gallery/gel.png'
             },
             { 
                 id: 5, 
