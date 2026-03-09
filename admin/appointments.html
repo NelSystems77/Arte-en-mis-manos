@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas - Arte en mis manos Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="dashboard.html">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <h1>✨ Arte en mis manos</h1>
+                <p>Panel de administración</p>
+            </div>
+            <nav>
+                <ul class="admin-nav">
+                    <li><a href="dashboard.html"><span class="admin-nav-icon">📊</span><span>Dashboard</span></a></li>
+                    <li><a href="appointments.html" class="active"><span class="admin-nav-icon">📅</span><span>Citas</span></a></li>
+                    <li><a href="services.html"><span class="admin-nav-icon">💅</span><span>Servicios</span></a></li>
+                    <li><a href="../index.html"><span class="admin-nav-icon">🏠</span><span>Ver sitio web</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-title"><h2>Gestión de Citas</h2></div>
+                <div class="admin-user">
+                    <div class="user-avatar">SA</div>
+                    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3>Todas las citas</h3>
+                <div id="appointmentsTable"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        auth.checkAuthentication();
+        document.addEventListener('DOMContentLoaded', loadAllAppointments);
+
+        async function loadAllAppointments() {
+            const appointments = await API.appointments.getAll();
+            const sorted = appointments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            const table = document.getElementById('appointmentsTable');
+            table.innerHTML = appointments.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No hay citas registradas</p></div>' : `
+                <table class="appointments-table">
+                    <thead><tr><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody>${sorted.map(apt => `
+                        <tr>
+                            <td><strong>${apt.nombre}</strong></td>
+                            <td>${apt.telefono}</td>
+                            <td>${apt.serviceName || 'N/A'}</td>
+                            <td>${new Date(apt.fecha).toLocaleDateString('es-ES')}</td>
+                            <td>${apt.hora}</td>
+                            <td><select onchange="updateStatus('${apt.id}', this.value)" class="status-badge status-${apt.estado}">
+                                <option value="pendiente" ${apt.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="confirmada" ${apt.estado === 'confirmada' ? 'selected' : ''}>Confirmada</option>
+                                <option value="completada" ${apt.estado === 'completada' ? 'selected' : ''}>Completada</option>
+                                <option value="cancelada" ${apt.estado === 'cancelada' ? 'selected' : ''}>Cancelada</option>
+                            </select></td>
+                            <td><button class="action-btn btn-delete" onclick="deleteAppointment('${apt.id}')">Eliminar</button></td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            `;
+        }
+
+        async function updateStatus(id, status) {
+            await API.appointments.update(id, { estado: status });
+            loadAllAppointments();
+        }
+
+        async function deleteAppointment(id) {
+            if (confirm('¿Eliminar esta cita?')) {
+                await API.appointments.delete(id);
+                loadAllAppointments();
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
+    </script>
+</body>
+</html>

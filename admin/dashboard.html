@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Dashboard - Arte en mis manos Admin</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    
+    <style>
+        .admin-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+            background: var(--color-cream);
+        }
+
+        .admin-sidebar {
+            background: var(--color-dark);
+            color: var(--color-white);
+            padding: 2rem 0;
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-brand {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .admin-brand h1 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-brand p {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .admin-nav {
+            list-style: none;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all var(--transition-base);
+            font-size: 0.95rem;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-white);
+        }
+
+        .admin-nav-icon {
+            font-size: 1.3rem;
+        }
+
+        .admin-main {
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--color-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-title h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-white);
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 107, 157, 0.1);
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all var(--transition-base);
+        }
+
+        .logout-btn:hover {
+            background: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--color-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--color-gray);
+            font-size: 0.9rem;
+        }
+
+        .admin-card {
+            background: var(--color-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .admin-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-dark);
+        }
+
+        .appointments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .appointments-table th,
+        .appointments-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-light-gray);
+        }
+
+        .appointments-table th {
+            background: var(--color-light-gray);
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .appointments-table tr:hover {
+            background: rgba(255, 107, 157, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pendiente {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-confirmada {
+            background: #D1ECF1;
+            color: #0C5460;
+        }
+
+        .status-completada {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-cancelada {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-edit {
+            background: #E8D5FF;
+            color: #6B2EFF;
+        }
+
+        .btn-edit:hover {
+            background: #C5A3FF;
+        }
+
+        .btn-delete {
+            background: #FFB8D1;
+            color: #FF1744;
+        }
+
+        .btn-delete:hover {
+            background: #FF6B9D;
+            color: var(--color-white);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-gray);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-brand">
+                <h1>✨ Arte en mis manos</h1>
+                <p>Panel de administración</p>
+            </div>
+            <nav>
+                <ul class="admin-nav">
+                    <li><a href="dashboard.html" class="active">
+                        <span class="admin-nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a></li>
+                    <li><a href="appointments.html">
+                        <span class="admin-nav-icon">📅</span>
+                        <span>Citas</span>
+                    </a></li>
+                    <li><a href="services.html">
+                        <span class="admin-nav-icon">💅</span>
+                        <span>Servicios</span>
+                    </a></li>
+                    <li><a href="../index.html">
+                        <span class="admin-nav-icon">🏠</span>
+                        <span>Ver sitio web</span>
+                    </a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-title">
+                    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+                    <h2>Dashboard</h2>
+                </div>
+                <div class="admin-user">
+                    <div class="user-avatar" id="userAvatar">SA</div>
+                    <div>
+                        <strong id="userName">SuperAdmin</strong>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">📅</div>
+                    </div>
+                    <div class="stat-value" id="totalAppointments">0</div>
+                    <div class="stat-label">Total de citas</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">⏳</div>
+                    </div>
+                    <div class="stat-value" id="pendingAppointments">0</div>
+                    <div class="stat-label">Citas pendientes</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">✅</div>
+                    </div>
+                    <div class="stat-value" id="completedAppointments">0</div>
+                    <div class="stat-label">Citas completadas</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">💅</div>
+                    </div>
+                    <div class="stat-value" id="totalServices">0</div>
+                    <div class="stat-label">Servicios activos</div>
+                </div>
+            </div>
+
+            <!-- Recent Appointments -->
+            <div class="admin-card">
+                <h3>Próximas citas</h3>
+                <div id="appointmentsContainer">
+                    <!-- Appointments will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        // Check authentication
+        const currentUser = auth.checkAuthentication();
+
+        // Load dashboard data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            setupEventListeners();
+        });
+
+        async function loadDashboardData() {
+            // Load appointments
+            const appointments = await API.appointments.getAll();
+            const services = await API.services.getAll();
+
+            // Calculate stats
+            const stats = {
+                total: appointments.length,
+                pending: appointments.filter(a => a.estado === 'pendiente').length,
+                completed: appointments.filter(a => a.estado === 'completada').length,
+                services: services.length
+            };
+
+            // Update stats
+            document.getElementById('totalAppointments').textContent = stats.total;
+            document.getElementById('pendingAppointments').textContent = stats.pending;
+            document.getElementById('completedAppointments').textContent = stats.completed;
+            document.getElementById('totalServices').textContent = stats.services;
+
+            // Load upcoming appointments
+            const upcoming = appointments
+                .filter(a => new Date(a.fecha) >= new Date() && a.estado !== 'cancelada')
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+                .slice(0, 10);
+
+            renderAppointments(upcoming);
+        }
+
+        function renderAppointments(appointments) {
+            const container = document.getElementById('appointmentsContainer');
+
+            if (appointments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <p>No hay citas próximas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="appointments-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${appointments.map(apt => `
+                            <tr>
+                                <td><strong>${apt.nombre}</strong></td>
+                                <td>${apt.serviceName || 'N/A'}</td>
+                                <td>${new Date(apt.fecha).toLocaleDateString('es-ES')}</td>
+                                <td>${apt.hora}</td>
+                                <td><span class="status-badge status-${apt.estado}">${apt.estado}</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn btn-edit" onclick="editAppointment('${apt.id}')">Editar</button>
+                                        <button class="action-btn btn-delete" onclick="deleteAppointment('${apt.id}')">Eliminar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function deleteAppointment(id) {
+            if (confirm('¿Estás seguro de eliminar esta cita?')) {
+                await API.appointments.delete(id);
+                loadDashboardData();
+                alert('Cita eliminada exitosamente');
+            }
+        }
+
+        function editAppointment(id) {
+            window.location.href = `appointments.html?id=${id}`;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                if (confirm('¿Deseas cerrar sesión?')) {
+                    await auth.logout();
+                }
+            });
+
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+</html>

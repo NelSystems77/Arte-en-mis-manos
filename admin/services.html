@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Arte en mis manos Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="dashboard.html">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <h1>✨ Arte en mis manos</h1>
+                <p>Panel de administración</p>
+            </div>
+            <nav>
+                <ul class="admin-nav">
+                    <li><a href="dashboard.html"><span class="admin-nav-icon">📊</span><span>Dashboard</span></a></li>
+                    <li><a href="appointments.html"><span class="admin-nav-icon">📅</span><span>Citas</span></a></li>
+                    <li><a href="services.html" class="active"><span class="admin-nav-icon">💅</span><span>Servicios</span></a></li>
+                    <li><a href="../index.html"><span class="admin-nav-icon">🏠</span><span>Ver sitio web</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-title"><h2>Gestión de Servicios</h2></div>
+                <div class="admin-user">
+                    <div class="user-avatar">SA</div>
+                    <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3>Servicios disponibles</h3>
+                    <button class="btn btn-primary" onclick="showAddServiceForm()">+ Agregar servicio</button>
+                </div>
+                
+                <div id="addServiceForm" style="display: none; margin-bottom: 2rem; padding: 2rem; background: var(--color-light-gray); border-radius: var(--radius-lg);">
+                    <h4 style="margin-bottom: 1rem;">Nuevo Servicio</h4>
+                    <div style="display: grid; gap: 1rem;">
+                        <input type="text" id="serviceName" placeholder="Nombre del servicio" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <textarea id="serviceDesc" placeholder="Descripción" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; min-height: 80px;"></textarea>
+                        <input type="number" id="servicePrice" placeholder="Precio (₡)" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <input type="number" id="serviceDuration" placeholder="Duración (minutos)" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;">
+                        <input type="text" id="serviceIcon" placeholder="Icono (emoji)" style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px;" maxlength="2">
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="saveService()">Guardar</button>
+                            <button class="btn btn-secondary" onclick="hideAddServiceForm()">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="servicesGrid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        auth.checkAuthentication();
+        document.addEventListener('DOMContentLoaded', loadServices);
+
+        async function loadServices() {
+            const services = await API.services.getAll();
+            const grid = document.getElementById('servicesGrid');
+            
+            grid.innerHTML = services.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">💅</div><p>No hay servicios registrados</p></div>' : `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                    ${services.map(service => `
+                        <div class="service-card">
+                            <div class="service-icon">${service.icon}</div>
+                            <h3 class="service-title">${service.name}</h3>
+                            <p class="service-description">${service.description}</p>
+                            <div class="service-price">₡${service.price.toLocaleString()}</div>
+                            <div class="service-duration">⏱ ${service.duration} minutos</div>
+                            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                                <button class="action-btn btn-edit" onclick="editService(${service.id})">Editar</button>
+                                <button class="action-btn btn-delete" onclick="deleteService(${service.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showAddServiceForm() {
+            document.getElementById('addServiceForm').style.display = 'block';
+        }
+
+        function hideAddServiceForm() {
+            document.getElementById('addServiceForm').style.display = 'none';
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDesc').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('serviceDuration').value = '';
+            document.getElementById('serviceIcon').value = '';
+        }
+
+        async function saveService() {
+            const serviceData = {
+                name: document.getElementById('serviceName').value,
+                description: document.getElementById('serviceDesc').value,
+                price: parseInt(document.getElementById('servicePrice').value),
+                duration: parseInt(document.getElementById('serviceDuration').value),
+                icon: document.getElementById('serviceIcon').value || '💅'
+            };
+
+            if (!serviceData.name || !serviceData.price || !serviceData.duration) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            await API.services.create(serviceData);
+            hideAddServiceForm();
+            loadServices();
+            alert('Servicio creado exitosamente');
+        }
+
+        async function deleteService(id) {
+            if (confirm('¿Eliminar este servicio?')) {
+                await API.services.delete(id);
+                loadServices();
+                alert('Servicio eliminado');
+            }
+        }
+
+        function editService(id) {
+            alert('Función de edición próximamente');
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
+    </script>
+</body>
+</html>

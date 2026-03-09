@@ -1,0 +1,7 @@
+# Arte en mis manos - robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://arteenmismanos.com/sitemap.xml
