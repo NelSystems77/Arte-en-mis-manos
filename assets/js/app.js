@@ -268,7 +268,7 @@ function checkAuth() {
 function setupPWA() {
     // Register Service Worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('/Arte-en-mis-manos/service-worker.js')
             .then(registration => {
                 console.log('✅ Service Worker registered:', registration);
             })
