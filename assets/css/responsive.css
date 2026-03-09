@@ -15,7 +15,7 @@
         width: 80%;
         max-width: 300px;
         height: calc(100vh - 70px);
-        background: var(--color-dark);;
+        background: var(--color-dark);
         backdrop-filter: blur(20px);
         flex-direction: column;
         align-items: flex-start;
@@ -35,6 +35,20 @@
         width: 100%;
         padding: 0.5rem 0;
         color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* NUEVO: Efecto hover en links del menú móvil */
+    .nav-link:hover {
+        color: var(--color-primary) !important;
+        background: rgba(255, 255, 255, 0.1);
+        padding-left: 0.5rem;
+        border-radius: 8px;
+    }
+
+    /* NUEVO: Estilo para el botón de reservar dentro del menú móvil */
+    .nav-menu .btn-primary {
+        width: 100%;
+        margin-top: 1rem;
     }
 
     .menu-toggle.active span:nth-child(1) {
