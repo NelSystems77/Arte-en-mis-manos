@@ -191,7 +191,7 @@ function loadGallery() {
             { 
                 id: 6, 
                 title: 'Uñas Acrílicas', 
-                image: '/Arte-en-mis-manos/assets/images/gallery/uñas acrilicas.png'
+                image: '/Arte-en-mis-manos/assets/images/gallery/acrilicas.png'
             }
         ];
         localStorage.setItem('gallery', JSON.stringify(app.gallery));
